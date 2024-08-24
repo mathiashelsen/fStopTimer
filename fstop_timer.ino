@@ -37,6 +37,7 @@ volatile int numTicks;
 volatile int baseTime;
 volatile int fStop;
 volatile int enableRelay;
+volatile int plainMode;
 
 volatile int fStopTicks[5];
 volatile int numFStop;
@@ -97,7 +98,7 @@ void runIdleChecks()
       float currentStop = (i - 2.0)/2.0 * abs(fStop);
       fStopTicks[i] = (int) (baseTime * pow(2.0, currentStop/10.0));
 
-      if(i > 0)
+      if(i > 0 && plainMode == 0)
       {
         fStopTicks[i] -= runningTicks;
         
@@ -195,6 +196,12 @@ void setup() {
   int rawVal = analogRead(ANAPIN_BASETIME);
   baseTime = map(rawVal, 0, 1024, 10, 300);
   display_a.showNumberDec(baseTime);
+
+  if(digitalRead(DIGPIN_START) == 0) {
+    plainMode = 0;
+  }else{
+    plainMode = 1;
+  }
 
   ITimer1.init();
   ITimer1.attachInterruptInterval(TIMER_INTERVAL_MS, TimerHandler);  
